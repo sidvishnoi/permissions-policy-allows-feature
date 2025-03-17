@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"moduleResolution": "bundler",
+		"module": "Preserve",
+		"target": "ESNext",
+		"rewriteRelativeImportExtensions": true,
+		"allowSyntheticDefaultImports": true,
+		"allowJs": false,
+		"checkJs": false,
+		"noEmit": false,
+		"emitDeclarationOnly": true,
+		"declaration": true,
+		"declarationMap": true,
+		"declarationDir": "types",
+		"erasableSyntaxOnly": true,
+		"allowImportingTsExtensions": true
+	},
+	"include": ["src"]
+}
