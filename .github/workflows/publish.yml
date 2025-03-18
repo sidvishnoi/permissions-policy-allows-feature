@@ -1,0 +1,76 @@
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0             # otherwise, you will fail to push refs to dest repo
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+      - run: pnpm install
+
+      # Test before releases just to be safe
+      - run: pnpm test
+
+      # Begin release part
+      - name: Get current version
+        id: current_version
+        run: echo "current_version=$(pnpm view . version)" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - run: pnpm version ${{ github.event.inputs.version }} --no-git-tag-version
+      - run: pnpm lint:fix
+      - name: Save version number
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Delete existing release # To keep the workflow idempotent.
+        run: gh release delete v${{ steps.version.outputs.version }} --cleanup-tag --yes
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Commit & Push changes
+        uses: actions-js/push@5a7cbd780d82c0c937b5977586e641b2fd94acc5
+        if: steps.current_version.outputs.current_version != steps.version.outputs.version
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          coauthor_email: ${{ github.event.sender.email }}
+          coauthor_name: ${{ github.event.sender.name }}
+          branch: ${{ github.event.repository.default_branch }}
+          message: 'chore: release v${{  steps.version.outputs.version }}'
+
+      - name: Create release
+        run: gh release create v${{ steps.version.outputs.version }} --verify-tag --title "v${{ steps.version.outputs.version }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true # if same release already exists
+
+      - run: pnpm publish --access public --provenance --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

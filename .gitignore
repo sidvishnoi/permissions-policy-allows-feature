@@ -1,0 +1,11 @@
+node_modules
+.vscode/settings.json
+
+example.ts
+
+# generated
+dist
+types
+
+*.tar.gz
+*.tgz
