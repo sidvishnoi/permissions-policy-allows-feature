@@ -68,14 +68,9 @@ jobs:
           coauthor_name: ${{ github.event.sender.name }}
           branch: ${{ github.event.repository.default_branch }}
           message: 'chore: release v${{  steps.version.outputs.version }}'
-      - name: Create & Push tags
-        run: |
-          git tag -a v${{ steps.version.outputs.version }} -m "v${{ steps.version.outputs.version }}"
-          git push origin --tags
-        continue-on-error: true
 
       - name: Create release
-        run: gh release create v${{ steps.version.outputs.version }} --verify-tag --title "v${{ steps.version.outputs.version }}"
+        run: gh release create v${{ steps.version.outputs.version }} --title "v${{ steps.version.outputs.version }}"
         env:
           GH_TOKEN: ${{ github.token }}
         continue-on-error: true # if same release already exists
