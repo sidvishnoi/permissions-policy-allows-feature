@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   publish:
@@ -40,10 +41,13 @@ jobs:
       # Begin release part
       - name: Get current version
         id: current_version
-        run: echo "current_version=$(pnpm view . version)" >> $GITHUB_OUTPUT
+        run: |
+          echo "current_version=$(pnpm view . version)" >> $GITHUB_OUTPUT
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       - run: pnpm version ${{ github.event.inputs.version }} --no-git-tag-version
+        if: steps.current_version.outputs.current_version != steps.current_version.outputs.version
       - run: pnpm lint:fix
       - name: Save version number
         id: version
@@ -64,6 +68,11 @@ jobs:
           coauthor_name: ${{ github.event.sender.name }}
           branch: ${{ github.event.repository.default_branch }}
           message: 'chore: release v${{  steps.version.outputs.version }}'
+      - name: Create & Push tags
+        run: |
+          git tag -a v${{ steps.version.outputs.version }} -m "v${{ steps.version.outputs.version }}"
+          git push origin --tags
+        continue-on-error: true
 
       - name: Create release
         run: gh release create v${{ steps.version.outputs.version }} --verify-tag --title "v${{ steps.version.outputs.version }}"
