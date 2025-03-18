@@ -9,6 +9,7 @@
 			"types": "./types/index.d.ts"
 		}
 	},
+	"files": ["dist", "types"],
 	"repository": "https://github.com/sidvishnoi/permissions-policy-allows-feature",
 	"types": "types/index.d.ts",
 	"scripts": {

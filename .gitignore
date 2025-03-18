@@ -6,3 +6,6 @@ example.ts
 # generated
 dist
 types
+
+*.tar.gz
+*.tgz
