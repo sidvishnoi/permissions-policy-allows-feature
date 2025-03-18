@@ -37,6 +37,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-24.04
+    needs: [lint]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -54,6 +55,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-24.04
+    needs: [lint]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
