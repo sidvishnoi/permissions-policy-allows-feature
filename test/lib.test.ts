@@ -11,7 +11,7 @@ describe("parseAllow", () => {
 	};
 
 	it("empty", () => {
-		deepEqual(parseAllow(""), c({ fullscreen: "*" }));
+		deepEqual(parseAllow(""), c({}));
 		deepEqual(parseAllow(";"), c({}));
 	});
 
