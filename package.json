@@ -19,7 +19,8 @@
 		"lint:fix": "biome check --fix",
 		"typecheck": "tsc -p tsconfig.json",
 		"build": "esbuild src/index.ts --bundle --outdir=dist --sourcemap --target=esnext --format=esm --platform=node --packages=external",
-		"build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir types"
+		"build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir types",
+		"prepack": "pnpm build && pnpm build:types"
 	},
 	"keywords": ["permissions-policy", "features-policy", "allow-feature"],
 	"author": "Sid Vishnoi <sidvishnoi8@gmail.com>",
